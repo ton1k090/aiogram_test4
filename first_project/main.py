@@ -6,7 +6,7 @@ from aiogram.filters import Command
 
 from config import TOKEN_API
 
-from first_project.keyboards import kb, kb_photo
+from first_project.keyboards import kb, kb_photo, ikb
 
 bot = Bot(TOKEN_API)
 dp = Dispatcher()
@@ -25,6 +25,16 @@ arr_photos = [
     'https://images-na.ssl-images-amazon.com/images/I/41eWsodFBhL.jpg',
 ]
 
+photos = dict(zip(arr_photos, ['one_photo', 'two photo', 'three photo', 'four photo'])) # сшиваем два массива и получаем словарь ключи ссылки значения номера - названия
+
+
+async def send_random(message: types.Message):
+    random_photo = random.choice(list(photos.keys()))
+    await bot.send_photo(chat_id=message.chat.id,
+                         photo=random_photo,  # отправляем рандом фото
+                         caption=photos[random_photo],
+                         reply_markup=ikb)  # привязали описание к фото
+
 
 @dp.message(F.text == 'Random photo')
 async def kbd_photo(message: types.Message):
@@ -38,9 +48,11 @@ async def kbd_photo(message: types.Message):
 @dp.message(F.text == 'random')
 async def send_random(message: types.Message):
     '''Отправляет рандомное фото по команде random'''
+    random_photo = random.choice(list(photos.keys()))
     await bot.send_photo(chat_id=message.chat.id,
-                         photo=random.choice(arr_photos))
-    await message.delete()
+                         photo=random_photo,  # отправляем рандом фото
+                         caption=photos[random_photo],
+                         reply_markup=ikb)  # привязали описание к фото
 
 
 @dp.message(F.text == 'main menu')
@@ -75,6 +87,18 @@ async def cmd_description(message: types.Message):
     await bot.send_sticker(chat_id=message.chat.id,
                            sticker='CAACAgIAAxkBAAENsLtnnlknRB3nehDAD7RRhBwjbGt4_QACWAIAArrAlQUQtZZnn0DJWjYE')#  отправлять откуда запрошено
     await message.delete()  # удалить текст дескрипшн с чата
+
+
+
+@dp.callback_query()
+async def callback_photo(callback: types.CallbackQuery):
+    if callback.data == 'like':
+        await callback.answer('Your cool man')
+    elif callback.data == 'dislike':
+        await callback.answer('Bad man')
+    else:
+        await send_random(message=callback.message)
+        await callback.answer()
 
 
 async def main():
