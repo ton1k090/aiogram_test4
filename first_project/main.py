@@ -29,6 +29,7 @@ photos = dict(zip(arr_photos, ['one_photo', 'two photo', 'three photo', 'four ph
 
 
 async def send_random(message: types.Message):
+    '''Отпр рандом фото и крепит клавиатуру инлайн'''
     random_photo = random.choice(list(photos.keys()))
     await bot.send_photo(chat_id=message.chat.id,
                          photo=random_photo,  # отправляем рандом фото
@@ -92,6 +93,7 @@ async def cmd_description(message: types.Message):
 
 @dp.callback_query()
 async def callback_photo(callback: types.CallbackQuery):
+    '''отвечает в зависимости от выбраной кнопки'''
     if callback.data == 'like':
         await callback.answer('Your cool man')
     elif callback.data == 'dislike':
